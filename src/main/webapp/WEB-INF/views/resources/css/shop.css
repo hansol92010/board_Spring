@@ -1,0 +1,174 @@
+.Header{
+display: flex;
+position: sticky;
+top: 0px;
+right: 0px;
+padding: 39px;
+z-index: 9999;
+background-color: rgb(255, 255, 255);
+border: 30px;
+}
+
+.container {
+display: flex;
+}
+
+.content {
+flex: 6;
+margin-left: 10px;
+margin-top: 10px;
+}
+
+.shopMenu {
+flex: 1;
+padding-right: 40px;
+}
+
+.banner {
+height: 250px;
+background-color: aqua;
+}
+
+.shopList1, .shopList2, .shopList3 {
+margin: 30px;
+}
+
+.goodsList {
+display: flex;
+width: 1090px;
+height: 350px;
+/*flex-wrap: wrap;*/
+justify-content: center;
+border: 1px solid black;
+margin: 50px;
+padding: 10px;
+}
+
+
+.goodsImg {
+border: 1px solid black;
+height: 300px;
+margin: 30px 30px;
+}
+
+.pagination {
+padding: 20px 0 35px;
+text-align: center;
+display: flex;
+justify-content: center;
+}
+
+.pagination_num_btn {
+width: 26px;
+border: 1px solid transparent;
+font-family: tahoma,sans-serif;
+font-size: 13px;
+font-weight: 700;
+line-height: 26px;
+color: #333;
+margin: 10px;
+}
+
+p {
+text-align: center;
+margin: 0;
+}
+
+ul {
+list-style: none;
+}
+
+a {
+text-decoration: none;
+color: black;
+}
+
+li {
+margin: 10px;
+}
+
+img {
+width: 200px;
+border: 1px solid black;
+}
+
+.below{
+display: -webkit-box;
+display: flex;
+-webkit-box-orient: horizontal;
+-webkit-box-direction: reverse;
+flex-direction: row-reverse;
+-webkit-box-pack: justify;
+justify-content: space-between;
+padding-bottom: 56px;
+border-bottom: 1px solid #ebebeb;
+}
+
+.below_detail{
+display: -webkit-box;
+display: flex;
+}
+
+.below_aa{
+font-size: 16px;
+letter-spacing: -.16px;
+margin: 0px 40px 0px 20px;
+}
+
+.below_link{
+font-size: 14px;
+letter-spacing: -.21px;
+color: rgba(34,34,34,.5);
+}
+
+.top_inner{
+background-color: rgb(255, 255, 255);
+
+}
+
+.top_list{
+display: flex;
+position: absolute;
+top: 0px; right: 0;
+}
+
+.top_link{
+font-size: 12px;
+color: black;
+margin-left: 20px;
+}
+
+.top_header_ul{
+display: flex;
+
+top: 20px; right: 0;
+padding: 8px 40px 0;
+height: 22px;
+}
+
+.top_header_ul{
+display: flex;
+top: 20px;
+right: 0;
+padding: 0px 40px 0;
+height: 22px;
+}
+
+.logo{
+color: black;
+font-size: 20px;
+}
+
+.www{
+display: flex;
+position: absolute;
+top: 20px; right: 0;
+padding: 18px 40px 0;
+height: 22px;
+}
+
+.menu{
+display: flex;
+padding-left: 60px;
+color: black;
+}

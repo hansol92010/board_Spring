@@ -1,0 +1,61 @@
+.sidebar .category {
+    margin-bottom: 20px;
+}
+
+.sidebar{
+  width: 200px;
+  position: fixed;
+}
+  
+.sidebar .category h3 {
+  margin-bottom: 10px;
+}
+  
+.sidebar .category ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+  
+.sidebar .category li {
+  margin-bottom: 5px;
+}
+  
+/* 마우스 오버 시 서브메뉴 보이기 */
+.sidebar .category ul.hidden {
+  display: none;
+}
+
+/* 브랜드 목록 스타일링 */
+.sidebar .brand {
+  margin-bottom: 20px;
+}
+ 
+.sidebar .brand h3 {
+  margin-bottom: 10px;
+}
+ 
+.sidebar .brand ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+ 
+.sidebar .brand li {
+  margin-bottom: 5px;
+}
+ 
+.category_menu {
+   text-decoration: none;
+   color: black;
+}
+ 
+.category ul{
+  list-style: none;
+  display: none;
+  padding-left: 3px;
+}
+
+.category:hover >ul{
+  display: block;
+}
