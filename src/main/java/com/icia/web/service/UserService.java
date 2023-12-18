@@ -27,8 +27,7 @@ import com.icia.web.model.User;
  * </pre>
  */
 @Service("userService")
-public class UserService
-{
+public class UserService {
 	private static Logger logger = LoggerFactory.getLogger(UserService.class);
 	
 	/**
@@ -47,53 +46,43 @@ public class UserService
 	 * @param userId 사용자 아이디
 	 * @return User
 	 */
-	public User userSelect(String userId)
-	{
+	/* 회원 조회 */
+	public User userSelect(String userId) {
 		User user = null;
 		
-		try
-		{
+		try{
 			user = userDao.userSelect(userId);
-		}
-		catch(Exception e)
-		{
+		} catch(Exception e) {
 			logger.error("[UserService] userSelect Exception", e);
 		}
 		
 		return user;
 	}
 	
-	//회원가입
-	public int userInsert(User user)
-	{
+	/* 회원 가입 */
+	public int userInsert(User user) {
 		int count = 0;
 		
-		try
-		{
+		try {
 			count = userDao.userInsert(user);
-		}
-		catch(Exception e)
-		{
+		} catch(Exception e) {
 			logger.error("[UserService] userInsert Exception", e);
 		}
 		
 		return count;
 	}
 	
-	//회원정보 수정
-	public int userUpdate(User user)
-	{
+	/* 회원 정보 수정 */
+	public int userUpdate(User user) {
 		int count = 0;
 		
-		try
-		{
+		try {
 			count = userDao.userUpdate(user);
-		}
-		catch(Exception e)
-		{
+		} catch(Exception e) {
 			logger.error("[UserService] userUpdate Exception", e);
 		}
 		
 		return count;
 	}
+
 }

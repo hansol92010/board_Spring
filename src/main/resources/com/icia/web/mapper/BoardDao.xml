@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.icia.web.dao.BoardDao">
+
+<resultMap type="com.icia.web.model.Board" id="boardResultMap">
+	<id column="BBS_SEQ" property="bbsSeq" />
+	<result column="USER_ID" property="userId" />
+	<result column="BBS_GROUP" property="bbsGroup" />
+	<result column="BBS_ORDER" property="bbsOrder" />
+	<result column="BBS_INDENT" property="bbsIndent" />
+	<result column="BBS_TITLE" property="bbsTitle" />
+	<result column="BBS_CONTENT" property="bbsContent" />
+	<result column="BBS_READ_CNT" property="bbsReadCnt" />
+	<result column="BBS_PARENT" property="bbsParent" />
+	<result column="REG_DATE" property="regDate" />
+</resultMap>
+
+<resultMap type="com.icia.web.model.BoardFile" id="boardFileResultMap">
+	<id column="BBS_SEQ" property="bbsSeq" />
+	<result column="FILE_SEQ" property="fileSeq" />
+	<result column="FILE_ORG_NAME" property="fileOrgName" />
+	<result column="FILE_NAME" property="fileName" />
+	<result column="FILE_EXT" property="fileExt" />
+	<result column="FILE_SIZE" property="fileSize" />
+	<result column="REG_DATE" property="regDate" />
+</resultMap>
+
+<!-- 총 게시물 조회 -->
+<select id="boardSelect" parameterType="com.icia.web.model.Board" resultMap="boardResultMap">
+	SELECT 
+	    BBS_SEQ,
+	    USER_ID,
+	    BBS_GROUP,
+	    BBS_ORDER,
+	    BBS_INDENT,
+	    BBS_TITLE,
+	    BBS_CONTENT,
+	    BBS_READ_CNT,
+	    REG_DATE,
+	    BBS_PARENT
+	FROM (
+	        SELECT
+	            ROWNUM AS RNUM,
+	            BBS_SEQ,
+	            USER_ID,
+	            BBS_GROUP,
+	            BBS_ORDER,
+	            BBS_INDENT,
+	            BBS_TITLE,
+	            BBS_CONTENT,
+	            BBS_READ_CNT,
+	            REG_DATE,
+	            BBS_PARENT
+	        FROM ( 
+	                 SELECT 
+	                        BBS_SEQ,
+	                        USER_ID,
+	                        NVL(BBS_GROUP, 0) AS BBS_GROUP,
+	                        NVL(BBS_ORDER, 0) AS BBS_ORDER,
+	                        NVL(BBS_INDENT, 0) AS BBS_INDENT,
+	                        NVL(BBS_TITLE, '') AS BBS_TITLE,
+	                        NVL(BBS_CONTENT, '') AS BBS_CONTENT,
+	                        NVL(BBS_READ_CNT, 0) AS BBS_READ_CNT,
+	                        NVL(TO_CHAR(REG_DATE, 'YYYY.MM.DD HH24:MI:SS'), '') AS REG_DATE,
+	                        NVL(BBS_PARENT, 0) AS BBS_PARENT
+	                FROM TBL_BOARD
+	            )
+	    )
+</select>
+
+<!-- 게시물 등록 -->
+<insert id="boardInsert" parameterType="com.icia.web.model.Board">
+	<!-- 선행처리기(시퀀스 생성) -->
+	<selectKey resultType="long" keyProperty="bbsSeq" order="BEFORE">
+		SELECT SEQ_BOARD_SEQ.NEXTVAL FROM DUAL
+	</selectKey>
+	<!-- insert -->
+	INSERT INTO TBL_BOARD (
+		BBS_SEQ,
+		USER_ID,
+		BBS_GROUP,
+		BBS_ORDER,
+		BBS_INDENT,
+		BBS_TITLE,
+		BBS_CONTENT,
+		BBS_READ_CNT,
+		REG_DATE,
+		BBS_PARENT
+	) VALUES (
+		#{bbsSeq},
+		#{userId},
+		#{bbsGroup},
+		#{bbsOrder},
+		#{bbsIndent},
+		#{bbsTitle},
+		#{bbsContent},
+		#{bbsReadCnt},
+		SYSDATE,
+		#{bbsParent}
+	)
+</insert>
+
+<!-- 첨부파일 등록 -->
+<insert id="boardFileInsert" parameterType="com.icia.web.model.BoardFile">
+	INSERT INTO TBL_BOARD_FILE (
+		BBS_SEQ,
+		FILE_SEQ,
+		FILE_ORG_NAME,
+		FILE_NAME,
+		FILE_EXT,
+		FILE_SIZE,
+		REG_DATE
+	) VALUES (
+		#{bbsSeq},
+		#{fileSeq},
+		#{fileOrgName},
+		#{fileName},
+		#{fileExt},
+		#{fileSize},
+		SYSDATE
+	)
+</insert>
+
+</mapper>

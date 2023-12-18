@@ -23,8 +23,7 @@ import com.icia.web.model.User;
  * </pre>
  */
 @Repository("userDao")
-public interface UserDao
-{
+public interface UserDao {
 	
 	/**
 	 * <pre>
@@ -36,11 +35,13 @@ public interface UserDao
 	 * @param userId 사용자 아이디
 	 * @return  com.icia.web.model.User
 	 */
+	/* 회원 조회 */
 	public User userSelect(String userId);
 	
-	//회원가입
+	/* 회원 가입 */
 	public int userInsert(User user);
 	
-	//회원정보 수정
+	/* 회원 정보 수정 */
 	public int userUpdate(User user);
+
 }

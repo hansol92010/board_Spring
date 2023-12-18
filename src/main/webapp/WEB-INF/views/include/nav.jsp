@@ -9,7 +9,7 @@
 				<a class="nav-link" href="#">로그아웃</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" href="#">회원정보수정</a>
+				<a class="nav-link" href="/user/updateForm">회원정보수정</a>
 			</li>			
 			<li class="nav-item">
 				<a class="nav-link" href="#">게시판</a>
@@ -25,7 +25,7 @@
 				<a class="nav-link" href="/">로그인</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" href="/">회원가입</a>
+				<a class="nav-link" href="/user/regForm">회원가입</a>
 			</li>			
 		</ul>
 	</nav>	
