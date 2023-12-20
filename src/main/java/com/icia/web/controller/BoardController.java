@@ -1,5 +1,8 @@
 package com.icia.web.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,6 +21,7 @@ import com.icia.common.model.FileData;
 import com.icia.common.util.StringUtil;
 import com.icia.web.model.Board;
 import com.icia.web.model.BoardFile;
+import com.icia.web.model.Paging;
 import com.icia.web.model.Response;
 import com.icia.web.model.User;
 import com.icia.web.service.BoardService;
@@ -42,16 +46,58 @@ public class BoardController {
 	@Autowired
 	private UserService userService;
 	
+	private static final int LIST_COUNT = 5;
+	private static final int PAGE_COUNT = 5;
+	
 	@RequestMapping(value="/board/list", method=RequestMethod.GET)
-	public String boardList(Model model) {
-		Board board = boardService.boardSelect();
-		System.out.println(board.getRegDate());
-		model.addAttribute("board", board);
+	public String boardList(HttpServletRequest request, Model model) {
+		
+		System.out.println("###################################");
+		
+		String searchType = HttpUtil.get(request, "searchType", "");
+		String searchValue = HttpUtil.get(request, "searchValue", "");
+		long curPage = HttpUtil.get(request, "curPage", (long)1);
+		
+		System.out.println(searchType);
+		System.out.println(searchValue);
+		System.out.println(curPage);
+		
+		long totalCount = 0;
+		Board board = new Board();
+		Paging paging = null;
+		List<Board> list  = new ArrayList<Board>();
+		
+		if(!StringUtil.isEmpty(searchType) && !StringUtil.isEmpty(searchValue)) {
+			board.setSearchType(searchType);
+			board.setSearchValue(searchValue);
+		}
+		
+		totalCount = boardService.boardCount(board);
+		logger.debug("==========================================");
+		logger.debug("totalCount : " + totalCount);
+		logger.debug("==========================================");
+		
+		if(totalCount > 0) {
+			paging = new Paging("/board/list", totalCount, LIST_COUNT, PAGE_COUNT, curPage, "curPage");
+			
+			board.setStartRow(paging.getStartRow());
+			board.setEndRow(paging.getEndRow());
+			
+			list = boardService.boardSelect(board);
+			logger.debug("size" + list.size());
+		}
+		
+		model.addAttribute("list", list);
+		model.addAttribute("curPage", curPage);
+		model.addAttribute("searchType", searchType);
+		model.addAttribute("searchValue", searchValue);
+		model.addAttribute("paging", paging);
+		
 		return "/board/list";
 	}
 	
 	@RequestMapping(value="/board/write", method=RequestMethod.GET)
-	public String boardList(HttpServletRequest request, HttpServletResponse response, Model model) {
+	public String writeForm(HttpServletRequest request, HttpServletResponse response, Model model) {
 		
 		String cookieUserId = CookieUtil.getHexValue(request, AUTH_COOKIE_NAME);
 		
@@ -104,7 +150,14 @@ public class BoardController {
 		}
 	
 		return ajaxResponse;
+	}
 	
+	@RequestMapping(value="/board/view", method=RequestMethod.GET)
+	public String detailView(HttpServletRequest request, HttpServletResponse response, Model model) {
+		Long bbsSeq = Long.parseLong(HttpUtil.get(request, "bbsSeq"));
+		String searchType = HttpUtil.get(request, "searchType");
+		String searchValue = HttpUtil.get(request, "searchValue");
+		return "/board/view";
 	}
 
 }

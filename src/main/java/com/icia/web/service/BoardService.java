@@ -1,5 +1,7 @@
 package com.icia.web.service;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,17 +21,30 @@ public class BoardService {
 	@Autowired
 	private BoardDao boardDao;
 	
-	// 게시물 조회
-	public Board boardSelect() {
-		Board board = null;
+	// 총 게시물 수
+	public long boardCount(Board board) {
+		long count = 0;
 		
 		try {
-			board = boardDao.boardSelect();
+			count = boardDao.boardCount(board);
+		} catch(Exception e) {
+			logger.error("[BoardService] boardCount Exception", e);
+		}
+		
+		return count;
+	}
+	
+	// 총 게시물 조회
+	public List<Board> boardSelect(Board board) {
+		List list = null;
+		
+		try {
+			list = boardDao.boardSelect(board);
 		} catch(Exception e) {
 			logger.error("[BoardService] boardSelect Exception", e);
 		}
 		
-		return board;
+		return list;
 	}
 	
 	// 게시물 등록(파일 처리도 함께 한다)
@@ -46,5 +61,18 @@ public class BoardService {
 		}
 
 		return count;
+	}
+	
+	// 게시물 상세보기
+	public Board boardDetail(long bbsSeq) {
+		Board board = null;
+		
+		try {
+			board = boardDao.boardDetail(bbsSeq);
+		} catch(Exception e) {
+			logger.error("[BoardService] boardDetail Exception", e);
+		}
+		
+		return board;
 	}
 }

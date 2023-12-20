@@ -12,7 +12,7 @@
 				<a class="nav-link" href="/user/updateForm">회원정보수정</a>
 			</li>			
 			<li class="nav-item">
-				<a class="nav-link" href="#">게시판</a>
+				<a class="nav-link" href="/board/list">게시판</a>
 			</li>		
 		</ul>
 	</nav>

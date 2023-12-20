@@ -53,7 +53,7 @@
 			$("#bbsTitle").focus();
 		});
 		
-	
+		/* 게시물 쓰기 */
 		const writeBtnClick = () => {
 			$("#btnWrite").prop("disabled", true);
 			
@@ -93,6 +93,7 @@
 				success: function(response) {
 					if(response.code == 0) {
 						alert("게시물이 등록되었습니다");
+						location.href="/board/list";
 					} else if(response.code == 400) {
 						alert("입력 정보가 잘못되었습니다. 다시 입력해주세요");
 						location.reload();

@@ -25,47 +25,92 @@
 	<result column="REG_DATE" property="regDate" />
 </resultMap>
 
-<!-- 총 게시물 조회 -->
+<!-- 총 게시물 수 -->
+<select id="boardCount" parameterType="com.icia.web.model.Board" resultType="Long">
+	SELECT 
+		COUNT(A.BBS_SEQ) AS CNT
+	FROM
+		TBL_BOARD A, TBl_USER B
+	WHERE
+		A.USER_ID = B.USER_ID
+<if test='searchType != null and searchType != "" and searchValue != null and searchValue != ""' >
+	<choose>
+		<when test='searchType == "1"'>
+	AND B.USER_NAME LIKE '%' || #{searchValue} || '%'
+		</when>
+		<when test='searchType == "2"'>
+	AND A.BBS_TITLE LIKE '%' || #{searchValue} || '%'
+		</when>
+		<when test='searchType == "3"'>
+	AND DBMS_LOB.INSTR(A.BBS_CONTENT, #{searchValue}) > 0
+		</when>
+	</choose>
+</if>	
+	
+</select>
+
+<!-- 총 게시물 -->
 <select id="boardSelect" parameterType="com.icia.web.model.Board" resultMap="boardResultMap">
 	SELECT 
-	    BBS_SEQ,
-	    USER_ID,
-	    BBS_GROUP,
-	    BBS_ORDER,
-	    BBS_INDENT,
-	    BBS_TITLE,
-	    BBS_CONTENT,
-	    BBS_READ_CNT,
-	    REG_DATE,
-	    BBS_PARENT
+		BBS_SEQ,
+		USER_ID,
+		USER_NAME,
+		USER_EMAIL,
+		BBS_GROUP,
+		BBS_ORDER,
+		BBS_INDENT,
+		BBS_TITLE,
+		BBS_CONTENT,
+		BBS_READ_CNT,
+		REG_DATE,
+		BBS_PARENT
 	FROM (
-	        SELECT
-	            ROWNUM AS RNUM,
-	            BBS_SEQ,
-	            USER_ID,
-	            BBS_GROUP,
-	            BBS_ORDER,
-	            BBS_INDENT,
-	            BBS_TITLE,
-	            BBS_CONTENT,
-	            BBS_READ_CNT,
-	            REG_DATE,
-	            BBS_PARENT
-	        FROM ( 
-	                 SELECT 
-	                        BBS_SEQ,
-	                        USER_ID,
-	                        NVL(BBS_GROUP, 0) AS BBS_GROUP,
-	                        NVL(BBS_ORDER, 0) AS BBS_ORDER,
-	                        NVL(BBS_INDENT, 0) AS BBS_INDENT,
-	                        NVL(BBS_TITLE, '') AS BBS_TITLE,
-	                        NVL(BBS_CONTENT, '') AS BBS_CONTENT,
-	                        NVL(BBS_READ_CNT, 0) AS BBS_READ_CNT,
-	                        NVL(TO_CHAR(REG_DATE, 'YYYY.MM.DD HH24:MI:SS'), '') AS REG_DATE,
-	                        NVL(BBS_PARENT, 0) AS BBS_PARENT
-	                FROM TBL_BOARD
-	            )
-	    )
+		SELECT
+			ROWNUM AS RNUM,
+			BBS_SEQ,
+			USER_ID,
+			USER_NAME,
+			USER_EMAIL,
+			BBS_GROUP,
+			BBS_ORDER,
+			BBS_INDENT,
+			BBS_TITLE,
+			BBS_CONTENT,
+			BBS_READ_CNT,
+			REG_DATE,
+			BBS_PARENT
+		FROM ( 
+			SELECT 
+				A.BBS_SEQ,
+				A.USER_ID,
+				NVL(B.USER_NAME, '') AS USER_NAME,
+				NVL(B.USER_EMAIL, '') AS USER_EMAIL,
+				NVL(A.BBS_GROUP, 0) AS BBS_GROUP,
+				NVL(A.BBS_ORDER, 0) AS BBS_ORDER,
+				NVL(A.BBS_INDENT, 0) AS BBS_INDENT,
+				NVL(A.BBS_TITLE, '') AS BBS_TITLE,
+				NVL(A.BBS_CONTENT, '') AS BBS_CONTENT,
+				NVL(A.BBS_READ_CNT, 0) AS BBS_READ_CNT,
+				NVL(TO_CHAR(A.REG_DATE, 'YYYY.MM.DD HH24:MI:SS'), '') AS REG_DATE,
+				NVL(A.BBS_PARENT, 0) AS BBS_PARENT
+			FROM TBL_BOARD A, TBL_USER B 
+			WHERE A.USER_ID = B.USER_ID
+	<if test='searchType != null and searchType != "" and searchValue != null and searchValue != ""' >
+		<choose>
+			<when test='searchType == "1"'>
+				AND B.USER_NAME LIKE '%' || #{searchValue} || '%'
+			</when>
+			<when test='searchType == "2"'>
+				AND A.BBS_TITLE LIKE '%' || #{searchValue} || '%'
+			</when>
+			<when test='searchType == "3"'>
+				AND DBMS_LOB.INSTR(A.BBS_CONTENT, #{searchValue}) > 0
+			</when>
+		</choose>
+	</if>
+				ORDER BY A.BBS_GROUP DESC, A.BBS_ORDER ASC))
+	WHERE RNUM <![CDATA[>=]]> #{startRow}
+	  AND RNUM <![CDATA[<=]]> #{endRow} 
 </select>
 
 <!-- 게시물 등록 -->
@@ -120,5 +165,24 @@
 		SYSDATE
 	)
 </insert>
+
+<!-- 게시물 상세 보기(게시물 번호로 조회하기) -->
+<select id="boardDetail" parameterType="long" resultMap="boardResultMap">
+	SELECT
+	    BBS_SEQ,
+	    USER_ID,
+	    BBS_GROUP,
+	    BBS_ORDER,
+	    BBS_INDENT,
+	    BBS_TITLE,
+	    BBS_CONTENT,
+	    BBS_READ_CNT,
+	    REG_DATE,
+	    BBS_PARENT
+	FROM
+	    TBL_BOARD
+	WHERE
+	    BBS_SEQ = #{value}
+</select>
 
 </mapper>

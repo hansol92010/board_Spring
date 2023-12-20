@@ -108,7 +108,7 @@
 				},
 				success: function(response) {
 					if(response.code == 0 ) {
-						location.href = "/"
+						location.href = "/board/list";
 					} else if(response.code == -1) {
 						alert("비밀번호를 잘못 입력했습니다. 다시 입력해주세요");
 						$("#userPwd").val("");

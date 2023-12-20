@@ -192,6 +192,7 @@
 			});	
 		}
 		
+		/* 회원 가입 ajax */
 		const userReg = () => {
 			$.ajax({
 				method: "POST",
@@ -206,6 +207,7 @@
 				success: function(response) {
 					if(response.code == 0) {
 						alert("회원가입에 성공하였습니다");
+						location.href="/";
 					} else if(response.code == 100) {
 						alert("아이디가 중복되었습니다.");
 						$("#usreId").focus();
