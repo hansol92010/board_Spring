@@ -30,7 +30,7 @@
 					<option value="3">내용</option>
 				</select>
 				<input type="text" name="_searchValue" id="_searchValue" value="${searchValue}" class="form-control mx-1" maxlength="20" style="width:auto;ime-mode:active;" placeholder="조회값을 입력하세요." />
-				<button type="button" id="btnSearch" class="btn btn-secondary mb-3 mx-1" onclick="search()">조회</button>
+				<button type="button" id="btnSearch" class="btn btn-secondary mb-3 mx-1" onclick="searchBtnClick()">조회</button>
 			</div>
 	 	</div>	
 	
@@ -45,17 +45,31 @@
 				</tr>
 			</thead>
 			<tbody>
-			<c:if test="${!empty list}">
-				<c:forEach var="board" items="${list}" varStatus="status">
+		<c:if test="${!empty list}">
+			<c:forEach var="board" items="${list}" varStatus="status">
 				<tr>
-					<td scope="row" class="text-center">${board.bbsSeq}</td>
-					<td scope="row" class="text-center"><a href="javascript:void(0)" onclick="detailView('${board.bbsSeq}')">${board.bbsTitle}</a></td>
-					<td scope="row" class="text-center">${board.userId}</td>
+				<c:choose>
+					<c:when test="${board.bbsIndent eq 0}">
+					<td scope="row" class="text-center">${board.bbsSeq }</td>
+					</c:when>
+					<c:otherwise>
+					<td scope="row" class="text-center"></td>
+					</c:otherwise>
+				</c:choose>
+					<td scope="row" class="text-center">
+						<a href="javascript:void(0)" onclick="detailView('${board.bbsSeq}')">
+							<c:if test="${board.bbsIndent > 0}">
+							<img src="/resources/images/icon_reply.gif" style="margin-left:${board.bbsIndent}em;"/>
+							</c:if>
+							${board.bbsTitle}
+						</a>
+					</td>
+					<td scope="row" class="text-center">${board.userName}</td>
 					<td scope="row" class="text-center">${board.regDate}</td>
-					<td scope="row" class="text-center">${board.bbsReadCnt}</td>
+					<td scope="row" class="text-center"><fmt:formatNumber type="number"  maxFractionDigits="3" value="${board.bbsReadCnt}" /></td>
 				</tr>
-				</c:forEach>
-			</c:if>
+			</c:forEach>
+		</c:if>
 			</tbody>
 		</table>
 		
@@ -89,7 +103,11 @@
 		<button type="button" id="btnWrite" class="btn btn-secondary mb-3" onclick="writeForm()">글쓰기</button>
 	</div>
 	
-	
+	<form name="bbsForm" id="bbsForm" method="get">
+		<input type="hidden" name="searchType" id="searchType" value="${searchType}"/>
+		<input type="hidden" name="searchValue" id="searchValue" value="${searchValue}"/>
+		<input type="hidden" name="curPage" id="curPage" value="${curPage}"/>
+	</form>
 		
 	
 	<!-- 자바스크립트 -->
@@ -103,11 +121,20 @@
 			location.href = "/board/write";
 		}
 		
+		// 특정 게시물 조회(작성자, 제목, 내용)
+		const searchBtnClick = () => {
+			document.bbsForm.searchType.value = $("#_searchType").val();
+			document.bbsForm.searchValue.value = $("#_searchValue").val();
+			document.bbsForm.action = "/board/list";
+			document.bbsForm.submit();
+		}
+		
 		// 해당 게시물의 상세 페이지로 이동
 		const detailView = (bbsSeq) => {
 			const searchType = $("#_searchType").val();
 			const searchValue = $("#_searchValue").val();
-			location.href = "/board/view?bbsSeq=" + bbsSeq + "&searchType=" + searchType + "&searchValue=" + searchValue;
+			const curPage = $("#curPage").val();
+			location.href = "/board/view?bbsSeq=" + bbsSeq + "&searchType=" + searchType + "&searchValue=" + searchValue + "&curPage=" + curPage;
 		}
 
 	</script>

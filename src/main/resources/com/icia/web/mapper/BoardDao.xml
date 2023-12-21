@@ -5,6 +5,8 @@
 <resultMap type="com.icia.web.model.Board" id="boardResultMap">
 	<id column="BBS_SEQ" property="bbsSeq" />
 	<result column="USER_ID" property="userId" />
+	<result column="USER_NAME" property="userName" />
+	<result column="USER_EMAIL" property="userEmail" />
 	<result column="BBS_GROUP" property="bbsGroup" />
 	<result column="BBS_ORDER" property="bbsOrder" />
 	<result column="BBS_INDENT" property="bbsIndent" />
@@ -50,7 +52,7 @@
 </select>
 
 <!-- 총 게시물 -->
-<select id="boardSelect" parameterType="com.icia.web.model.Board" resultMap="boardResultMap">
+<select id="boardList" parameterType="com.icia.web.model.Board" resultMap="boardResultMap">
 	SELECT 
 		BBS_SEQ,
 		USER_ID,
@@ -134,7 +136,7 @@
 	) VALUES (
 		#{bbsSeq},
 		#{userId},
-		#{bbsGroup},
+		#{bbsSeq},
 		#{bbsOrder},
 		#{bbsIndent},
 		#{bbsTitle},
@@ -167,22 +169,105 @@
 </insert>
 
 <!-- 게시물 상세 보기(게시물 번호로 조회하기) -->
-<select id="boardDetail" parameterType="long" resultMap="boardResultMap">
+<select id="boardSelect" parameterType="Long" resultMap="boardResultMap">
 	SELECT
-	    BBS_SEQ,
-	    USER_ID,
-	    BBS_GROUP,
-	    BBS_ORDER,
-	    BBS_INDENT,
-	    BBS_TITLE,
-	    BBS_CONTENT,
-	    BBS_READ_CNT,
-	    REG_DATE,
-	    BBS_PARENT
+		A.BBS_SEQ AS BBS_SEQ,
+		A.USER_ID AS USER_ID,
+		B.USER_NAME AS USER_NAME,
+		B.USER_EMAIL AS USER_EMAIL,
+		A.BBS_GROUP AS BBS_GROUP,
+		A.BBS_ORDER AS BBS_ORDER,
+		A.BBS_INDENT AS BBS_INDENT,
+		A.BBS_TITLE AS BBS_TITLE,
+		A.BBS_CONTENT AS BBS_CONTENT,
+		A.BBS_READ_CNT AS BBS_READ_CNT,
+		A.REG_DATE AS REG_DATE,
+		A.BBS_PARENT AS BBS_PARENT
 	FROM
-	    TBL_BOARD
+		TBL_BOARD A, TBL_USER B
 	WHERE
-	    BBS_SEQ = #{value}
+		A.USER_ID = B.USER_ID
+    AND 
+        A.BBS_SEQ = #{value}
 </select>
 
+<!-- 조회수 증가 -->
+<update id="bbsReadCntIncrement" parameterType="Long" >
+	UPDATE TBL_BOARD
+	SET BBS_READ_CNT = BBS_READ_CNT + 1
+	WHERE BBS_SEQ = #{value}
+</update>
+
+<!-- 첨부파일 조회 -->
+<select id="boardFileSelect" parameterType="Long" resultMap="boardFileResultMap">
+	SELECT
+		BBS_SEQ,
+		FILE_SEQ,
+		FILE_ORG_NAME,
+		FILE_NAME,
+		FILE_EXT,
+		FILE_SIZE,
+		REG_DATE
+	FROM
+		TBL_BOARD_FILE
+	WHERE
+		BBS_SEQ = #{value}
+</select>
+
+<!-- 게시물 답글 등록 -->
+<insert id="boardReplyInsert" parameterType="com.icia.web.model.Board">
+<selectKey resultType="Long" keyProperty="bbsSeq" order="BEFORE">
+	SELECT SEQ_BOARD_SEQ.NEXTVAL FROM DUAL
+</selectKey>
+	INSERT INTO TBL_BOARD (
+		BBS_SEQ,
+		USER_ID,
+		BBS_GROUP,
+		BBS_ORDER,
+		BBS_INDENT,
+		BBS_TITLE,
+		BBS_CONTENT,
+		BBS_READ_CNT,
+		REG_DATE,
+		BBS_PARENT
+	) VALUES (
+		#{bbsSeq},
+		#{userId},
+		#{bbsGroup},
+		#{bbsOrder},
+		#{bbsIndent},
+		#{bbsTitle},
+		#{bbsContent},
+		0,
+		SYSDATE,
+		#{bbsParent}
+	)	
+</insert>
+
+<!-- 같은 Group 내에서 새로운 답글이 들어오면 기존의 Order의 값을 업데이트 한다 -->
+<update id="boardGroupOrderUpdate" parameterType="com.icia.web.model.Board">
+	UPDATE TBL_BOARD
+	   SET BBS_ORDER = BBS_ORDER + 1
+	 WHERE BBS_GROUP = #{bbsGroup}
+	   AND BBS_ORDER <![CDATA[>=]]> #{bbsOrder}
+</update>
+
+<!-- 게시물 삭제  -->
+<delete id="boardDelete" parameterType="Long">
+	DELETE FROM TBL_BOARD
+	WHERE BBS_SEQ = #{value}
+</delete>
+
+<!-- 첨부파일 삭제 -->
+<delete id="boardFileDelete" parameterType="Long">
+	DELETE FROM TBL_BOARD_FILE
+	WHERE BBS_SEQ = #{value}
+</delete>
+
+<!-- 답글의 수 체크 -->
+<select id="boardAnswersCnt" parameterType="Long" resultType="Int">
+	SELECT COUNT(BBS_SEQ) AS CNT
+	 FROM TBL_BOARD
+	WHERE BBS_PARENT = #{value}
+</select>
 </mapper>
