@@ -31,7 +31,7 @@
 							${board.userName}&nbsp;&nbsp;&nbsp;
 							<a href="mailto:${board.userEmail}" style="color:#828282;">${board.userEmail}</a>
 							<c:if test="${!empty board.boardFile}">
-							&nbsp;&nbsp;&nbsp;<a href="#"  style="color:#000;">[첨부파일]</a>
+							&nbsp;&nbsp;&nbsp;<a href="/board/download?bbsSeq=${board.boardFile.bbsSeq}"  style="color:#000;">[첨부파일 : ${board.boardFile.fileOrgName}]</a>
 							</c:if>
 						</th>
 						<th scope="col">
@@ -54,8 +54,8 @@
 							<button type="button" id="btnReply" class="btn btn-secondary" onclick="replyBtnClick()">답변</button>
 							
 							<c:if test="${boardMe eq 'Y'}">
-							<button type="button" id="btnUpdate" class="btn btn-secondary" onclick="updateBtnClick()">수정</button>
-							<button type="button" id="btnDelete" class="btn btn-secondary" onclick="deleteBtnClick('${board.bbsSeq}')">삭제</button>
+							<button type="button" id="btnUpdate" class="btn btn-secondary" onclick="updateBtnClick(${board.bbsSeq})">수정</button>
+							<button type="button" id="btnDelete" class="btn btn-secondary" onclick="deleteBtnClick(${board.bbsSeq})">삭제</button>
 							</c:if>	
 						</td>
 					</tr>
@@ -79,6 +79,13 @@
 	<script type="text/javascript" src="/resources/js/icia.ajax.js"></script>
 	
 	<script type="text/javascript">
+		$(document).ready(function() {
+			<c:if test="${empty board}">
+				alert("해당 게시물이 존재하지 않습니다");
+				location.href = "/board/list";
+			</c:if>
+		});
+	
 		const listBtnClick = () => {
 			window.history.back();
 		}
@@ -92,8 +99,10 @@
 			document.viewForm.submit();
 		}
 		
-		const updateBtnClick = () => {
-			
+		const updateBtnClick = (bbsSeq) => {
+			document.viewForm.bbsSeq.value = $("#bbsSeq").val();
+			document.viewForm.action = "/board/updateForm";
+			document.viewForm.submit();
 		}
 		
 		const deleteBtnClick = (bbsSeq) => {

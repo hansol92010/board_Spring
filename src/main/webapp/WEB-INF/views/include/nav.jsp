@@ -6,7 +6,7 @@
 	<nav class="navbar navbar-expand-sm bg-secondary navbar-dark mb-3">
 		<ul class="navbar-nav">
 			<li class="nav-item">
-				<a class="nav-link" href="#">로그아웃</a>
+				<a class="nav-link" href="/user/logoutProc">로그아웃</a>
 			</li>
 			<li class="nav-item">
 				<a class="nav-link" href="/user/updateForm">회원정보수정</a>

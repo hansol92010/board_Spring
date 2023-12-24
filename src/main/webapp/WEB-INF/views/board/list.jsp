@@ -25,9 +25,9 @@
 			<div class="ml-auto input-group" style="width:50%;">
 				<select name="_searchType" id="_searchType" class="custom-select" style="width:auto;">
 					<option value="">조회 항목</option>
-					<option value="1">작성자</option>
-					<option value="2">제목</option>
-					<option value="3">내용</option>
+					<option value="1" <c:if test="${searchType eq '1'}">selected</c:if>>작성자</option>
+					<option value="2" <c:if test="${searchType eq '2'}">selected</c:if>>제목</option>
+					<option value="3" <c:if test="${searchType eq '3'}">selected</c:if>>내용</option>
 				</select>
 				<input type="text" name="_searchValue" id="_searchValue" value="${searchValue}" class="form-control mx-1" maxlength="20" style="width:auto;ime-mode:active;" placeholder="조회값을 입력하세요." />
 				<button type="button" id="btnSearch" class="btn btn-secondary mb-3 mx-1" onclick="searchBtnClick()">조회</button>
@@ -98,18 +98,10 @@
 			</c:if>		
 			</ul>
 		</nav>
-		
-		<input type="hidden" id="curPage" name="curPage" value="${curPage}" />
+		<input type="hidden" name="curPage" id="curPage" value="${curPage}"/>
 		<button type="button" id="btnWrite" class="btn btn-secondary mb-3" onclick="writeForm()">글쓰기</button>
 	</div>
-	
-	<form name="bbsForm" id="bbsForm" method="get">
-		<input type="hidden" name="searchType" id="searchType" value="${searchType}"/>
-		<input type="hidden" name="searchValue" id="searchValue" value="${searchValue}"/>
-		<input type="hidden" name="curPage" id="curPage" value="${curPage}"/>
-	</form>
-		
-	
+
 	<!-- 자바스크립트 -->
 	<script type="text/javascript" src="/resources/js/jquery-3.5.1.min.js"></script>
 	<script type="text/javascript" src="/resources/js/icia.common.js"></script>
@@ -123,10 +115,10 @@
 		
 		// 특정 게시물 조회(작성자, 제목, 내용)
 		const searchBtnClick = () => {
-			document.bbsForm.searchType.value = $("#_searchType").val();
-			document.bbsForm.searchValue.value = $("#_searchValue").val();
-			document.bbsForm.action = "/board/list";
-			document.bbsForm.submit();
+			const searchType = $("#_searchType").val();
+			const searchValue = $("#_searchValue").val();
+			const curPage = $("#curPage").val();
+			location.href = "/board/list?searchType=" + searchType + "&searchValue=" + searchValue + "&curPage=" + curPage;
 		}
 		
 		// 해당 게시물의 상세 페이지로 이동
@@ -135,6 +127,14 @@
 			const searchValue = $("#_searchValue").val();
 			const curPage = $("#curPage").val();
 			location.href = "/board/view?bbsSeq=" + bbsSeq + "&searchType=" + searchType + "&searchValue=" + searchValue + "&curPage=" + curPage;
+		}
+		
+		// 페이징
+		const fn_page = (i) => {
+			const searchType = $("#_searchType").val();
+			const searchValue = $("#_searchValue").val();
+			const curPage = i;
+			location.href = "/board/list?searchType=" + searchType + "&searchValue=" + searchValue + "&curPage=" + curPage;
 		}
 
 	</script>

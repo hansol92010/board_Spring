@@ -39,10 +39,6 @@
 			</div>
 		</form>
 	</div>
-
-	<form name="replyForm" method="get">
-
-	</form>
 	
 	<!-- 자바스크립트 -->
 	<script type="text/javascript" src="/resources/js/jquery-3.5.1.min.js"></script>

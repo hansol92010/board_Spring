@@ -81,6 +81,17 @@ public class BoardService {
 		return board;
 	}
 	
+	// 게시물 첨부파일만 조회
+	public BoardFile boardFileSelect(long bbsSeq) {
+		BoardFile boardFile = null;
+		try {
+			boardFile = boardDao.boardFileSelect(bbsSeq);
+		} catch(Exception e) {
+			logger.error("[BoardService] boardFileSelect Exception", e);
+		}
+		return boardFile;
+	}
+	
 	// 게시물 상세보기용(조회수, 첨부파일 조회까지)
 	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public Board boardView(long bbsSeq) throws Exception {
@@ -146,6 +157,54 @@ public class BoardService {
 		} catch(Exception e) {
 			logger.debug("[BoardService] boardAnswersCnt Exception", e);
 		}
+		return count;
+	}
+	
+	// 게시글 수정 페이지 조회 항목(상세보기용 조회에서 조회수 카운트만 빼고)
+	public Board boardUpdateFormView(long bbsSeq) {
+		Board board = null;
+		
+		try {
+			board = boardDao.boardSelect(bbsSeq);
+			if(board != null) {		
+				BoardFile boardFile = boardDao.boardFileSelect(bbsSeq);	
+				
+				if(boardFile != null) {
+					board.setBoardFile(boardFile);
+				}
+			}
+		} catch(Exception e) {
+			logger.error("[BoardService] boardUpdateView Exception", e);
+		}
+		
+		return board;
+	}
+	
+	
+	// 게시글 수정
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
+	public int boardUpdate(Board board) throws Exception {
+		int count = boardDao.boardUpdate(board);
+		if(count > 0 && board.getBoardFile() != null) {
+			// 기존 첨부파일
+			BoardFile preBoardFile = boardDao.boardFileSelect(board.getBbsSeq());
+			
+			// 기존 첨부파일 삭제
+			if(preBoardFile != null) {
+				FileUtil.deleteFile(UPLOAD_SAVE_DIR + FileUtil.getFileSeparator() + preBoardFile.getFileName());
+				boardDao.boardFileDelete(board.getBbsSeq());
+			}
+			
+			// 새로운 첨부파일
+			BoardFile newBoardFile = board.getBoardFile();
+			
+			// 새로운 첨부파일 삽입
+			newBoardFile.setBbsSeq(board.getBbsSeq());
+			newBoardFile.setFileSeq((short)1);
+			boardDao.boardFileInsert(newBoardFile);
+		}
+		
+		
 		return count;
 	}
 }

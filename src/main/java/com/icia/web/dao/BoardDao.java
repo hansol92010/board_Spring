@@ -33,4 +33,6 @@ public interface BoardDao {
 	public int boardFileDelete(long bbsSeq);
 	
 	public int boardAnswersCnt(long bbsSeq);
+	
+	public int boardUpdate(Board board);
 }

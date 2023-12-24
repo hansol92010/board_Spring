@@ -1,6 +1,6 @@
 package com.icia.web.controller;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.icia.common.model.FileData;
+import com.icia.common.util.FileUtil;
 import com.icia.common.util.StringUtil;
 import com.icia.web.model.Board;
 import com.icia.web.model.BoardFile;
@@ -50,15 +52,19 @@ public class BoardController {
 	private static final int LIST_COUNT = 5;
 	private static final int PAGE_COUNT = 5;
 	
-	// 게시물 조회 리스트
+	// 게시물 전체 리스트 조회 처리
 	@RequestMapping(value="/board/list", method=RequestMethod.GET)
 	public String boardList(HttpServletRequest request, Model model) {
-		
-		System.out.println("###################################");
 		
 		String searchType = HttpUtil.get(request, "searchType", "");
 		String searchValue = HttpUtil.get(request, "searchValue", "");
 		long curPage = HttpUtil.get(request, "curPage", (long)1);
+		
+		System.out.println("###################################");
+		System.out.println(searchType);
+		System.out.println(searchValue);
+		System.out.println(curPage);
+		System.out.println("###################################");	
 		
 		long totalCount = 0;
 		Board board = new Board();
@@ -94,6 +100,7 @@ public class BoardController {
 		return "/board/list";
 	}
 	
+	// 게시물 쓰기 페이지
 	@RequestMapping(value="/board/write", method=RequestMethod.GET)
 	public String writeForm(HttpServletRequest request, HttpServletResponse response, Model model) {
 		
@@ -105,6 +112,7 @@ public class BoardController {
 		return "/board/writeForm";
 	}
 	
+	// 게시물 쓰기 처리
 	@RequestMapping(value="/board/writeProc", method=RequestMethod.POST)
 	@ResponseBody
 	public Response<Object> writeProc(MultipartHttpServletRequest request, HttpServletResponse response) {
@@ -150,6 +158,7 @@ public class BoardController {
 		return ajaxResponse;
 	}
 	
+	// 게시물 상세 페이지 이동
 	@RequestMapping(value="/board/view", method=RequestMethod.GET)
 	public String detailView(HttpServletRequest request, Model model) {
 		
@@ -213,6 +222,7 @@ public class BoardController {
 		return "/board/replyForm";
 	}
 	
+	// 답변 쓰기 처리
 	@RequestMapping(value="/board/replyProc", method=RequestMethod.POST)
 	@ResponseBody
 	public Response<Object> replyProc(MultipartHttpServletRequest request, HttpServletResponse response) {
@@ -275,7 +285,7 @@ public class BoardController {
 		return ajaxResponse;	
 	}
 	
-	// 게시물 삭제
+	// 게시물 삭제 처리
 	@RequestMapping(value="/board/deleteProc", method=RequestMethod.GET)
 	@ResponseBody
 	public Response<Object> boardDelete(HttpServletRequest request, HttpServletResponse response) {
@@ -313,6 +323,118 @@ public class BoardController {
 			ajaxResponse.setResponse(400, "Bad Request");
 		}
 		return ajaxResponse;
+	}
+	
+	// 게시물 수정 페이지
+	@RequestMapping(value="/board/updateForm", method=RequestMethod.GET)
+	public String updateForm(HttpServletRequest request, Model model) {
+		
+		String cookiUserId = CookieUtil.getHexValue(request, AUTH_COOKIE_NAME);
+		long bbsSeq = HttpUtil.get(request, "bbsSeq", (long)0);
+		
+		Board board = null;
+		User user = null;
+		
+		if(bbsSeq > 0) {
+			board = boardService.boardUpdateFormView(bbsSeq);
+			if(board != null) {
+				if(StringUtil.equals(cookiUserId, board.getUserId())) {
+					user = userService.userSelect(cookiUserId);
+				} else {
+					board = null;
+				}
+			}
+		}
+
+		model.addAttribute("board", board);
+		model.addAttribute("user", user);
+		
+		return "/board/updateForm";
+	}
+	
+	// 게시물 수정 처리
+	@RequestMapping(value="/board/updateProc", method=RequestMethod.POST)
+	@ResponseBody
+	public Response<Object> updateProc(MultipartHttpServletRequest request, HttpServletResponse response) {
+		
+		Response<Object> ajaxResponse = new Response<Object>();
+		String cookieUserId = CookieUtil.getHexValue(request, AUTH_COOKIE_NAME);
+		long bbsSeq = HttpUtil.get(request, "bbsSeq", (long)0);
+		String bbsTitle = HttpUtil.get(request, "bbsTitle");
+		String bbsContent = HttpUtil.get(request, "bbsContent");
+		FileData fileData = HttpUtil.getFile(request, "bbsFile", UPLOAD_SAVE_DIR);
+		
+		Board board = null;
+		
+		if(bbsSeq > 0 && !StringUtil.isEmpty(bbsTitle) && !StringUtil.isEmpty(bbsContent)) {
+			board = boardService.boardUpdateFormView(bbsSeq);
+			if(board != null) {
+				if(StringUtil.equals(cookieUserId, board.getUserId())) {
+					board.setBbsSeq(bbsSeq);
+					board.setBbsTitle(bbsTitle);
+					board.setBbsContent(bbsContent);
+					
+					if(fileData != null && fileData.getFileSize() > 0) {
+						BoardFile boardFile = new BoardFile();
+						boardFile.setFileName(fileData.getFileName());
+						boardFile.setFileOrgName(fileData.getFileOrgName());
+						boardFile.setFileSize(fileData.getFileSize());
+						boardFile.setFileExt(fileData.getFileExt());
+						
+						board.setBoardFile(boardFile);
+					}
+					
+					try {
+						if(boardService.boardUpdate(board) > 0) {
+							ajaxResponse.setResponse(0, "Success");
+						} else {
+							ajaxResponse.setResponse(500, "Internal Server Error1");
+						}
+					} catch(Exception e) {
+						logger.error("[BoardController] updateProc Exception", e);
+						ajaxResponse.setResponse(500, "Internal Server Error1");
+					}
+				} else {
+					ajaxResponse.setResponse(404, "Not Found1");
+				}
+			} else {
+				ajaxResponse.setResponse(404, "Not Found2");
+			}
+		} else {
+			ajaxResponse.setResponse(400, "Bad Request");
+		}
+		
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[HiBoardController] /board/updateProc response\n" + JsonUtil.toJsonPretty(ajaxResponse));
+		}
+
+		return ajaxResponse;
+	}
+	
+	/* 다운로드 */
+	@RequestMapping(value="/board/download", method=RequestMethod.GET)
+	public ModelAndView download(HttpServletRequest request, HttpServletResponse response) {
+		ModelAndView modelAndView = null;
+		long bbsSeq = HttpUtil.get(request, "bbsSeq", (long)0);
+		
+		if(bbsSeq > 0) {
+			BoardFile boardFile = boardService.boardFileSelect(bbsSeq);
+			if(boardFile != null) {
+				File file = new File(UPLOAD_SAVE_DIR + FileUtil.getFileSeparator() + boardFile.getFileName());
+				if(FileUtil.isFile(file)) {
+					modelAndView = new ModelAndView();
+					//servelt-context.xml에서 정의한 fileDownloadView id
+					modelAndView.setViewName("fileDownloadView");
+					modelAndView.addObject("file", file);
+					modelAndView.addObject("fileName", boardFile.getFileOrgName());
+					
+					return modelAndView;
+				}
+			}
+			
+		}
+		return modelAndView;
 	}
 
 }

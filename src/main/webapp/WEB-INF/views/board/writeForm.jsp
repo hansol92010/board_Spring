@@ -36,13 +36,6 @@
 		</form>
 	</div>
 	
-	<form name="bbsForm" id="bbsForm" method="post">
-		<input type="hidden" name="searchType" value="" />
-		<input type="hidden" name="searchValue" value="" />
-		<input type="hidden" name="curPage" value="" />
-	</form>
-	
-	
 	<!-- 자바스크립트 -->
 	<script type="text/javascript" src="/resources/js/jquery-3.5.1.min.js"></script>
 	<script type="text/javascript" src="/resources/js/icia.common.js"></script>

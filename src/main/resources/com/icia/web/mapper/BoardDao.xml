@@ -246,10 +246,14 @@
 
 <!-- 같은 Group 내에서 새로운 답글이 들어오면 기존의 Order의 값을 업데이트 한다 -->
 <update id="boardGroupOrderUpdate" parameterType="com.icia.web.model.Board">
-	UPDATE TBL_BOARD
-	   SET BBS_ORDER = BBS_ORDER + 1
-	 WHERE BBS_GROUP = #{bbsGroup}
-	   AND BBS_ORDER <![CDATA[>=]]> #{bbsOrder}
+	UPDATE
+		TBL_BOARD
+	SET
+		BBS_ORDER = BBS_ORDER + 1
+	WHERE	
+		BBS_GROUP = #{bbsGroup}
+	AND 
+		BBS_ORDER <![CDATA[>=]]> #{bbsOrder}
 </update>
 
 <!-- 게시물 삭제  -->
@@ -270,4 +274,16 @@
 	 FROM TBL_BOARD
 	WHERE BBS_PARENT = #{value}
 </select>
+
+<!-- 게시물 수정 -->
+<update id="boardUpdate" parameterType="com.icia.web.model.Board">
+	UPDATE
+		TBL_BOARD
+	SET	
+		BBS_TITLE = #{bbsTitle},
+		BBS_CONTENT = #{bbsContent}
+	WHERE
+		BBS_SEQ = #{bbsSeq}
+</update>
+
 </mapper>

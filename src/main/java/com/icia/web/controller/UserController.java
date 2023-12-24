@@ -206,4 +206,16 @@ public class UserController
 		return ajaxResponse;
 	}
 	
+	/* 로그 아웃 */
+	@RequestMapping(value="/user/logoutProc", method=RequestMethod.GET)
+	public String logout(HttpServletRequest request, HttpServletResponse response) {
+		String cookieUserId = CookieUtil.getHexValue(request, AUTH_COOKIE_NAME);
+		
+		if(!StringUtil.isEmpty(cookieUserId) || cookieUserId != null) {
+			CookieUtil.deleteCookie(request, response, "/", AUTH_COOKIE_NAME);
+		}
+		
+		return "redirect:/index";
+	}
+	
 }
